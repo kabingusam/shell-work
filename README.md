@@ -1,2 +1,2 @@
 # simple_shell
-\very own shell.
+Very own shell.

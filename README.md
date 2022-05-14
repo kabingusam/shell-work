@@ -30,4 +30,25 @@ Non-interactive mode:
     hsh main.c shell.c test_ls_2
     $
 
+Files contained and description:
+
+# main.c
+Entry point of the program.
+
+# builtins.c
+
+
+# execute.c
+
+
+# parser.c
+
+
+# env_operators.c
+
+
+# shell.h
+
+
+
     Authors : Kabingu Sammy.

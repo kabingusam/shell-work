@@ -1,6 +1,10 @@
 #include  <stdio.h>
 #include  <sys/types.h>
 #include "shell.h"
+/**
+* Used to execute command that is input by the user.
+* 
+*/
 
 void  execute(char **argv)
 {

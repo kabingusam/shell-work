@@ -1,6 +1,10 @@
 #include  <stdio.h>
 #include  <sys/types.h>
 #include "shell.h"
+/**
+* Parses the command that is input into tokens.
+*
+*/
 
 void  parse(char *line, char **argv)
 {

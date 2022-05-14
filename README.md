@@ -50,5 +50,7 @@ Entry point of the program.
 # shell.h
 
 
+# man_3_simple_shell
+
 
     Authors : Kabingu Sammy.

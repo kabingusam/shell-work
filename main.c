@@ -8,7 +8,7 @@ void  main(void)
      char  *argv[64];              /* the command line argument      */
 
      while (1) {                   /* repeat until done ....         */
-          printf("Shell -> ");     /*   display a prompt             */
+          printf("$ -> ");     /*   display a prompt             */
           gets(line);              /*   read in the command line     */
           printf("\n");
           parse(line, argv);       /*   parse the line               */

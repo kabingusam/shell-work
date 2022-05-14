@@ -36,25 +36,25 @@ Non-interactive mode:
 
 Files contained and description:
 
-# main.c
+1.main.c
 Entry point of the program.
 
-# builtins.c
+2.builtins.c
 
 
-# execute.c
+3.execute.c
 
 
-# parser.c
+4.parser.c
 
 
-# env_operators.c
+5.env_operators.c
 
 
-# shell.h
+6.shell.h
 
 
-# man_3_simple_shell
+7.man_3_simple_shell
 
 
     Authors : Kabingu Sammy.

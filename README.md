@@ -1,4 +1,8 @@
 # simple_shell
+helpful links:
+
+https://c-for-dummies.com/blog/
+
 Very own shell.
 
 Compilation:

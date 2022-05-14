@@ -37,7 +37,8 @@ Non-interactive mode:
 Files contained and description:
 
 1.main.c
-Entry point of the program.
+
+    Entry point of the program.
 
 2.builtins.c
 

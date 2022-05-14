@@ -1,41 +1,19 @@
+#include  <stdio.h>
+#include  <sys/types.h>
 #include "shell.h"
-/**
-* main function
-*
-*/
 
-int main(int argc, char **argv)
+void  main(void)
 {
-    char *cmd;
+     char  line[1024];             /* the input line                 */
+     char  *argv[64];              /* the command line argument      */
 
-    do
-    {
-        print_prompt1();
-
-        cmd = read_cmd();
-
-        if(!cmd)
-        {
-            exit(EXIT_SUCCESS);
-        }
-
-        if(cmd[0] == '\0' || strcmp(cmd, "\n") == 0)
-        {
-            free(cmd);
-            continue;
-        }
-
-        if(strcmp(cmd, "exit\n") == 0)
-        {
-            free(cmd);
-            break;
-        }
-
-        printf("%s\n", cmd);
-
-        free(cmd);
-
-    } while(1);
-
-    exit(EXIT_SUCCESS);
+     while (1) {                   /* repeat until done ....         */
+          printf("Shell -> ");     /*   display a prompt             */
+          gets(line);              /*   read in the command line     */
+          printf("\n");
+          parse(line, argv);       /*   parse the line               */
+          if (strcmp(argv[0], "exit") == 0)  /* is it an "exit"?     */
+               exit(0);            /*   exit if it is                */
+          execute(argv);           /* otherwise, execute the command */
+     }
 }

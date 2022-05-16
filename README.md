@@ -1,5 +1,5 @@
 # simple_shell
-helpful links:
+Helpful links:
 
 https://c-for-dummies.com/blog/
 

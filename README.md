@@ -1,3 +1,13 @@
+<p align="center">
+
+  <img src="full_colored_light.jpg" width="400\"/>
+
+<br>
+
+
+<h1><p align="center">A simple shell</h1></p></font>
+
+
 # simple_shell
 Helpful links:
 

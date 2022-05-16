@@ -7,8 +7,6 @@
 
 <h1><p align="center">A simple shell.</h1></p></font>
 
-
-# simple_shell
 Helpful links:
 
 https://c-for-dummies.com/blog/

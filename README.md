@@ -67,4 +67,4 @@ Files contained and description:
 10.man_3_simple_shell
 
 
-*kabingu sammy* - [Github](https://github.com/kabingusam) || [Twitter](https://twitter.com/https:Kabingusammy)
+*kabingu sammy* - [Github](https://github.com/kabingusam) || [Twitter](https://twitter.com/Kabingusammy)

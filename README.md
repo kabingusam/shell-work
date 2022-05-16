@@ -44,43 +44,43 @@ Non-interactive mode:
 
 Files contained and description:
 
-1.Main.c
+1. Main.c
 
     Entry point of the program.
 
-2.Memo.c
+2. Memo.c
 
     Handles memeory.
 
-3.More_string.c
+3. More_string.c
 
     Contains functions that handle Strings.
 
-4.More_tools.c
+4. More_tools.c
 
     Contains functions that help in better handling of characters and integers plus errors.
 
-5.Parser.c
+5. Parser.c
 
     Parses the command by the user.
 
-6.Shell.h
+6. Shell.h
 
     Contains all the macros and prototypes.
 
-7.String.c
+7. String.c
 
     Contains functions that handle Strings.
 
-8.Task0.c
+8. Task0.c
 
     Contains code that aims at passing all Betty tests.
 
-9.Tools.c
+9. Tools.c
 
     Contains functions that help in better handling of characters and integers plus errors.
 
-10.man_3_simple_shell
+10. man_3_simple_shell
 
 
 *kabingu sammy* - [Github](https://github.com/kabingusam) || [Twitter](https://twitter.com/Kabingusammy)

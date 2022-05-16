@@ -29,7 +29,7 @@ char *_getenv(char *path_name)
 	return (NULL);
 }
 /**
- * signal_handler - handle the process interrept signal
+ * signal_handler - handle the process interept signal
  * @signo: the signal identifier
  *
  * Return: void

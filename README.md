@@ -42,27 +42,35 @@ Files contained and description:
 
 2.Memo.c
 
+    Handles memeory.
 
 3.More_string.c
 
+    Contains functions that handle Strings.
 
 4.More_tools.c
 
+    Contains functions that help in better handling of characters and integers plus errors.
 
 5.Parser.c
 
+    Parses the command by the user.
 
 6.Shell.h
 
+    Contains all the macros and prototypes.
 
 7.String.c
 
+    Contains functions that handle Strings.
 
 8.Task0.c
 
+    Contains code that aims at passing all Betty tests.
 
 9.Tools.c
 
+    Contains functions that help in better handling of characters and integers plus errors.
 
 10.man_3_simple_shell
 

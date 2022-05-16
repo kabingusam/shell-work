@@ -17,7 +17,7 @@ int is_path_form(sh_t *data)
 }
 #define DELIMITER ":"
 /**
- * is_short_form - chekc if the given fikenname is short form
+ * is_short_form - check if the given fikenname is short form
  * @data: the data strucct pointer
  *
  * Return: (Success)

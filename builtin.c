@@ -6,7 +6,7 @@ int shellby_help(char **args, char __attribute__((__unused__)) **front);
 
 /**
  * get_builtin - Matches a command with a corresponding
- *               shellby builtin function.
+ *                builtin function.
  * @command: The command to match.
  *
  * Return: A function pointer to the corresponding builtin.
@@ -35,7 +35,7 @@ int (*get_builtin(char *command))(char **args, char **front)
 
 /**
  * shellby_exit - Causes normal process termination
- *                for the shellby shell.
+ *                for the shell.
  * @args: An array of arguments containing the exit value.
  * @front: A double pointer to the beginning of args.
  *
@@ -79,7 +79,7 @@ int shellby_exit(char **args, char **front)
 }
 
 /**
- * shellby_cd - Changes the current directory of the shellby process.
+ * shellby_cd - Changes the current directory of the  process.
  * @args: An array of arguments.
  * @front: A double pointer to the beginning of args.
  *
@@ -160,7 +160,7 @@ int shellby_cd(char **args, char __attribute__((__unused__)) **front)
 }
 
 /**
- * shellby_help - Displays information about shellby builtin commands.
+ * shellby_help - Displays information about  builtin commands.
  * @args: An array of arguments.
  * @front: A pointer to the beginning of args.
  *

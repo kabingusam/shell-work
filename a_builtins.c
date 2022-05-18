@@ -9,6 +9,11 @@ void print_alias(alias_t *alias);
  * aliases, or sets an alias.
  * @args: An array of arguments.
  * @front: A double pointer to the beginning of args.
+ * 
+ * Shell aliases are shortcut names for commands:
+ * command ls -F can be aliasd to lf
+ * 
+ * To create an alias in bash : alias lf='ls -F'
  *
  * Return: If an error occurs - -1.
  *         Otherwise - 0.

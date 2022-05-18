@@ -1,109 +1,100 @@
 #include "shell.h"
-
 /**
- * _strcat - concatenates two string in a path form.
- * @first: the first given destination
- * @second: the second given source.
- *
- * Return: (Success) to the newly string.
- * ------- (Fail) if it failed.
+ * _strlen - replicates strlen from the standard library
+ * @s: string to be measured
+ * Return: length of string
  */
-char *_strcat(char *first, char *second)
+int _strlen(char *s)
 {
-	int len1, len2, i = 0, j = 0;
-	char *result;
+	int i;
 
-	len1 = _strlen(first);
-	len2 = _strlen(second);
-	result = malloc((len1 + len2 + 2) * sizeof(char));
-	if (!result)
-		return (NULL);
-	*result = '\0';
-	while (first[j])
-		result[i++] = first[j++];
-	result[i++] = '/';
-	j = 0;
-	while (second[j])
-		result[i++] = second[j++];
-	result[i] = '\0';
-	return (result);
-}
-/**
- * _strlen - finds the length of a given string
- * @str: the given string
- *
- * Return: (Success) the length of the string
- * ------- (Fail) negative value
- */
-int _strlen(char *str)
-{
-	int len;
-
-	for (len = 0; str[len]; len++)
+	for (i = 0; *s; s++, i++)
 		;
-	return (len);
+	return (i);
 }
 /**
- * _strcmp - compare two strings
- * @s1: the first given string
- * @s2: the second given string
- *
- * Return: (Success) a positive number
- * ------- (Fail) a negative number
+ * _strncmp - compares two strings and returns their difference
+ * @s1: the first string
+ * @s2: the second string
+ * @bytes: number of bytes to compare
+ * Return: number of bytes that differ
  */
-int _strcmp(char *s1, char *s2)
+int _strncmp(char *s1, char *s2, size_t bytes)
 {
-	int cmp = 0, i;
+	unsigned int i;
 
 	if (s1 == NULL || s2 == NULL)
-		return (1);
-	for (i = 0; s1[i]; i++)
+		return (-1);
+
+	for (i = 0; s1[i] && s2[i] && s2[i] == s1[i] && i < bytes - 1; i++)
+		;
+	return (s2[i] - s1[i]);
+}
+/**
+  * _strdup - duplicates a string
+  * @src: source to copy from
+  * Return: pointer to malloc'd space
+  **/
+char *_strdup(char *src)
+{
+	int len, i;
+	char *dest;
+
+	if (src == NULL)
+		return (NULL);
+	len = _strlen(src);
+	if (len < 0)
+		return (NULL);
+	len++;
+	dest = malloc((len) * sizeof(char));
+	if (dest == NULL)
+		return (NULL);
+	for (i = 0; i < len; i++)
+		dest[i] = src[i];
+	dest[i - 1] = '\0';
+	return (dest);
+}
+/**
+  * _strcat_realloc - concatenates 2 strings and reallocates automatically
+  * @dest: destination to copy to
+  * @src: source to copy from
+  * Return: pointer to concatenated strings
+  **/
+char *_strcat_realloc(char *dest, char *src)
+{
+	unsigned int dest_len, src_len, i;
+
+	dest_len = _strlen(dest);
+	src_len = _strlen(src);
+	dest = _realloc(dest, dest_len, dest_len + src_len + 1);
+	if (dest == NULL)
+		return (NULL);
+	for (i = 0; i < src_len; i++)
 	{
-		if (s1[i] != s2[i])
-		{
-			cmp = s1[i] - s2[i];
-			break;
-		}
-		else
-			continue;
+		dest[i + dest_len] = src[i];
 	}
-	return (cmp);
+	dest[i + dest_len] = '\0';
+	return (dest);
 }
 /**
- * _strchr - locates a character in a given string
- * @str: the given string
- * @c: the given string
- *
- * Return: (Success) a pointer to the first occurence of c
- * ------- (Fail) return a null pointer
+ * _atoi - converts a string to an integer
+ * @s: the input string
+ * Return: the converted int
  */
-char *_strchr(char *str, char c)
+int _atoi(char *s)
 {
-	char *ptr;
+	int n, sign, result;
 
-	if (str == NULL)
-		return (NULL);
-	for (ptr = str; *ptr; ptr++)
-		if (*ptr == c)
-			return (ptr);
-	return (NULL);
-}
-/**
- * _strdup - dupicates string
- * @str: the given string
- *
- * Return: (Success) a pointer to the duplicated string
- * ------- (Fail) return a null pointer
- */
-char *_strdup(char *str)
-{
-	char *dupl;
-
-	if (str == NULL)
-		return (NULL);
-	dupl = malloc(_strlen(str) + 1);
-	if (dupl == NULL)
-		return (NULL);
-	_strcpy(dupl, str);
-	return (dupl);
+	for (n = result = 0, sign = 1; s[n]; n++)
+	{
+		if (s[n] == '-')
+			sign *= -1;
+		if (s[n] >= '0' && s[n] <= '9')
+			result = 10 * result - (s[n] - '0');
+		if (result < 0 && (s[n] < '0' || s[n] > '9'))
+			break;
+	}
+	if (sign > 0)
+		result *= -1;
+	return (result);
 }

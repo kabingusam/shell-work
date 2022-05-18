@@ -1,77 +1,119 @@
 #include "shell.h"
 /**
- * is_path_form - check if the given filenname is a path
- * @data: the data strucct pointer
- *
- * Return: (Success)
- * ------- (Fail) otherwise
+ * _getline - gets line from STDIN and places it in the buffer
+ * @file: int assigned to the read of STDIN
+ * Return: pointer to buffer with formatted input from STDIN
  */
-int is_path_form(sh_t *data)
+char *_getline(int file)
 {
-	if (_strchr(data->args[0], '/') != 0)
-	{
-		data->cmd = _strdup(data->args[0]);
-		return (SUCCESS);
-	}
-	return (FAIL);
-}
-#define DELIMITER ":"
-/**
- * is_short_form - check if the given fikenname is short form
- * @data: the data strucct pointer
- *
- * Return: (Success)
- * ------- (Fail) otherwise
- */
-void is_short_form(sh_t *data)
-{
-	char *path, *token, *_path;
-	struct stat st;
-	int exist_flag = 0;
+	unsigned int i, index;
+	char *buffer;
+	static unsigned int buffer_size = BUFSIZE;
 
-	path = _getenv("PATH");
-	_path = _strdup(path);
-	token = strtok(_path, DELIMITER);
-	while (token)
+	buffer = malloc(sizeof(char) * buffer_size);
+	if (buffer == NULL)
 	{
-		data->cmd = _strcat(token, data->args[0]);
-		if (stat(data->cmd, &st) == 0)
+		perror("malloc for buffer failed\n");
+		return (NULL);
+	}
+	index = 0;
+	_memset(buffer, '\0', buffer_size);
+	while ((i = read(file, buffer + index, buffer_size - index)) > 0)
+	{
+
+		if (i < (buffer_size - index))
+			return (buffer);
+		buffer_size *= 2;
+		_realloc(buffer, buffer_size, buffer_size / 2);
+		if (buffer == NULL)
 		{
-			exist_flag += 1;
-			break;
+			perror("realloc failed\n");
+			return (NULL);
 		}
-		free(data->cmd);
-		token = strtok(NULL, DELIMITER);
+		index += i;
 	}
-	if (exist_flag == 0)
-	{
-		data->cmd = _strdup(data->args[0]);
-	}
-	free(_path);
+	if (i == 0)
+		_memcpy(buffer, "exit", 5);
+	return (buffer);
 }
-#undef DELIMITER
 /**
- * is_builtin - checks if the command is builtin
- * @data: a pointer to the data structure
- *
- * Return: (Success) 0 is returned
- * ------- (Fail) negative number will returned
- */
-int is_builtin(sh_t *data)
+  * parser - parses a string into tokens
+  * @str: string to parse
+  * @delimit: delimiters chosen by user
+  * Return: Double pointer to array of tokens
+  */
+char **parser(char *str, char *delimit)
 {
-	blt_t blt[] = {
-		{"exit", abort_prg},
-		{"cd", change_dir},
-		{"help", display_help},
-		{NULL, NULL}
-	};
-	int i = 0;
+	char **tokenized, *saveptr, *token;
+	unsigned int i, wc;
 
-	while ((blt + i)->cmd)
+	wc = word_count(str);
+	tokenized = malloc((wc + 1) * sizeof(char *));
+	if (!tokenized)
 	{
-		if (_strcmp(data->args[0], (blt + i)->cmd) == 0)
-			return (SUCCESS);
-		i++;
+		perror("malloc failed\n");
+		return (NULL);
 	}
-	return (NEUTRAL);
+	tokenized[0] = token = _strtok_r(str, delimit, &saveptr);
+	for (i = 1; token; i++)
+		tokenized[i] = token = _strtok_r(NULL, delimit, &saveptr);
+	return (tokenized);
+}
+/** Global variable: Flag, to handle interrupt signals **/
+unsigned char sig_flag = 0;
+/**
+  * sighandler - handles signals from keyboard interrupts
+  * @sig: the signal caught
+  */
+static void sighandler(int sig)
+{
+
+	if (sig == SIGINT && sig_flag == 0)
+		simple_print("\nAnd baby says: ");
+	else if (sig_flag != 0)
+		simple_print("\n");
+}
+/**
+  * main - entry point
+  * Return: 0 on successful termination. -1 on failure.
+  */
+int main(void)
+{
+	char pipe_flag, *buffer, *cmds, *saveptr, **tokens;
+	env_t *linkedlist_path;
+	struct stat fstat_buf;
+
+	if (signal(SIGINT, sighandler) == SIG_ERR)
+		perror("signal error\n");
+	if (fstat(STDIN_FILENO, &fstat_buf) == -1)
+		perror("fstat error\n"), exit(98);
+	pipe_flag = (fstat_buf.st_mode & S_IFMT) == S_IFCHR ? 0 : 1;
+	linkedlist_path = list_from_path();
+	if (linkedlist_path == NULL)
+		return (-1);
+	saveptr = NULL;
+	while (1)
+	{
+		sig_flag = 0;
+		if (pipe_flag == 0)
+			simple_print("And baby says: ");
+		buffer = _getline(STDIN_FILENO);
+		if (!buffer)
+			break;
+		cmds = _strtok_r(buffer, "\n;", &saveptr);
+		while (cmds)
+		{
+			tokens = parser(cmds, "\t ");
+			if (!tokens)
+				break;
+			if (is_builtin(tokens[0]))
+				is_builtin(tokens[0])(tokens, linkedlist_path, cmds);
+			else
+				sig_flag = 1, executor(tokens, linkedlist_path);
+			free(tokens);
+			cmds = _strtok_r(NULL, "\n;", &saveptr);
+		}
+		free(buffer);
+	}
+	return (0);
 }

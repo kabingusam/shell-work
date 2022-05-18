@@ -1,83 +1,101 @@
 #include "shell.h"
-/**
-  * _setenv_usr - sets environmental variables as user defines
-  * @tokens: KEY=VALUE pair
-  * Return: 0 on success, -1 on failure
-  */
-int _setenv_usr(char **tokens)
-{
-	int i, status, wc;
-	char *key, *value, *saveptr;
 
-	for (i = 0, wc = 1; tokens[1][i]; i++)
-		if (tokens[1][i] == '=')
-			wc++;
-	for (i = 0; tokens[i]; i++)
-		;
-	if (!tokens[1] || i == 0 || wc != 2)
-	{
-		simple_print("setenv: Usage: setenv KEY=VALUE\n");
-		return (-1);
-	}
-	key = _strtok_r(tokens[1], "=", &saveptr);
-	value = _strtok_r(NULL, "=", &saveptr);
-	status = _setenv(key, value, 0);
-	if (status == 0)
-		return (status);
-	return (-1);
-}
-/**
-  * _alias - sets aliases or prints them out when no options are supplied
-  * Return: 0
-  */
-int _alias(void)
-{
-	simple_print("alias: usage: alias [-p] [name[=value] ... ]\n");
-	simple_print("\tSet or view aliases.\n\tSet with name=value\n");
-	simple_print("\tView list of aliases with no arugments or -p\n");
-	return (0);
-}
-/**
-  * _history - prints out history with no options,
-  *  or clears history with -c
-  * Return: 0 on success, 1 if history cannot be cleared.
-  */
-int _history(void)
-{
-	simple_print("history: usage: history [-c]\n");
-	simple_print("\tView the history of commands\n ");
-	simple_print("\t'history -c' clears the history\n");
-	return (0);
-}
-/**
-  * bowie - easter egg. Displays ASCII picture of Bowie
-  * Return: 1947, the year Bowie was born
-  */
-int bowie(void)
-{
-	int txt_file, total, read_status;
-	size_t letters = 7483;
-	char *filename = "bowie.txt";
-	char buffer[BUFSIZE];
+void help_all(void);
+void help_alias(void);
+void help_cd(void);
+void help_exit(void);
+void help_help(void);
 
-	if (filename == NULL)
-		return (0);
-	txt_file = open(filename, O_RDONLY);
-	if (txt_file == -1)
-		return (0);
-	total = 0;
-	read_status = 1;
-	while (letters > BUFSIZE && read_status != 0)
-	{
-		read_status = read(txt_file, buffer, BUFSIZE);
-		write(STDOUT_FILENO, buffer, read_status);
-		total += read_status;
-		letters -= BUFSIZE;
-	}
-	read_status = read(txt_file, buffer, letters);
-	write(STDOUT_FILENO, buffer, read_status);
-	total += read_status;
-	close(txt_file);
-	return (1947);
-/**	return (total); */
+/**
+ * help_all - Displays all possible builtin shellby commands.
+ */
+void help_all(void)
+{
+	char *msg = "Shellby\nThese shell commands are defined internally.\n";
+
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "Type 'help' to see this list.\nType 'help name' to find ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "out more about the function 'name'.\n\n  alias   \t";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "alias [NAME[='VALUE'] ...]\n  cd    \tcd   ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "[DIRECTORY]\n  exit    \texit [STATUS]\n  env     \tenv";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "\n  setenv  \tsetenv [VARIABLE] [VALUE]\n  unsetenv\t";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "unsetenv [VARIABLE]\n";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+}
+
+/**
+ * help_alias - Displays information on the shellby builtin command 'alias'.
+ */
+void help_alias(void)
+{
+	char *msg = "alias: alias [NAME[='VALUE'] ...]\n\tHandles aliases.\n";
+
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "\n\talias: Prints a list of all aliases, one per line, in ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "the format NAME='VALUE'.\n\talias name [name2 ...]:prints";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = " the aliases name, name2, etc. one per line, in the ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "form NAME='VALUE'.\n\talias NAME='VALUE' [...]: Defines";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = " an alias for each NAME whose VALUE is given. If NAME ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "is already an alias, replace its value with VALUE.\n";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+}
+
+/**
+ * help_cd - Displays information on the shellby builtin command 'cd'.
+ */
+void help_cd(void)
+{
+	char *msg = "cd: cd [DIRECTORY]\n\tChanges the current directory of the";
+
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = " process to DIRECTORY.\n\n\tIf no argument is given, the ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "command is interpreted as cd $HOME. If the argument '-' is";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = " given, the command is interpreted as cd $OLDPWD.\n\n";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "\tThe environment variables PWD and OLDPWD are updated ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "after a change of directory.\n";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+}
+
+/**
+ * help_exit - Displays information on the shellby builtin command 'exit'.
+ */
+void help_exit(void)
+{
+	char *msg = "exit: exit [STATUS]\n\tExits the shell.\n\n\tThe ";
+
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "STATUS argument is the integer used to exit the shell.";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = " If no argument is given, the command is interpreted as";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = " exit 0.\n";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+}
+
+/**
+ * help_help - Displays information on the shellby builtin command 'help'.
+ */
+void help_help(void)
+{
+	char *msg = "help: help\n\tSee all possible Shellby builtin commands.\n";
+
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "\n      help [BUILTIN NAME]\n\tSee specific information on each ";
+	write(STDOUT_FILENO, msg, _strlen(msg));
+	msg = "builtin command.\n";
+	write(STDOUT_FILENO, msg, _strlen(msg));
 }

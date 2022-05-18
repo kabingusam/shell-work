@@ -1,89 +1,75 @@
 #include "shell.h"
-/**
-  * list_from_path - builds a linked list from PATH
-  * Return: pointer to linked list
-  */
-env_t *list_from_path(void)
-{
-	unsigned int len, i, j;
-	char *env;
-	char buffer[BUFSIZE];
-	env_t *ep;
 
-	ep = NULL;
-	len = i = j = 0;
-	env = _getenv("PATH");
-	while (*env)
-	{
-		buffer[j++] = *env;
-		len++;
-		if (*env == ':')
-		{
-			len--;
-			buffer[j - 1] = '/';
-			buffer[j] = '\0';
-			add_node(&ep, buffer, len);
-			len = j = 0;
-		}
-		env++;
-	}
-	return (ep);
-}
-/**
-  * environ_linked_list - builds a linked list from PATH
-  * Return: pointer to linked list
-  */
-env_t *environ_linked_list(void)
-{
-	int i, j;
-	char **env;
-	env_t *ep;
+char **_copyenv(void);
+void free_env(void);
+char **_getenv(const char *var);
 
-	ep = NULL;
-	i = j = 0;
-	env = environ;
-	while (env[i])
-	{
-		add_node(&ep, env[i], (unsigned int)_strlen(env[i]));
-		i++;
-	}
-	return (ep);
-}
 /**
-  * search_os - search through os to find a command
-  * @cmd: command to search for
-  * @linkedlist_path: path to search through
-  * Return: String to absolute path if found, NULL if not
-  */
-char *search_os(char *cmd, env_t *linkedlist_path)
+ * _copyenv - Creates a copy of the environment.
+ *
+ * Return: If an error occurs - NULL.
+ *         O/w - a double pointer to the new copy.
+ */
+char **_copyenv(void)
 {
-	int status;
-	char *abs_path;
-	env_t *ep;
+	char **new_environ;
+	size_t size;
+	int index;
 
-	ep = linkedlist_path;
-	if (ep == NULL || cmd == NULL)
+	for (size = 0; environ[size]; size++)
+		;
+
+	new_environ = malloc(sizeof(char *) * (size + 1));
+	if (!new_environ)
 		return (NULL);
-	if ((_strncmp(cmd, "/", 1) == 0
-			|| _strncmp(cmd, "./", 2) == 0)
-			&& access(cmd, F_OK | X_OK) == 0)
+
+	for (index = 0; environ[index]; index++)
 	{
-		abs_path = _strdup(cmd);
-		return (abs_path);
+		new_environ[index] = malloc(_strlen(environ[index]) + 1);
+
+		if (!new_environ[index])
+		{
+			for (index--; index >= 0; index--)
+				free(new_environ[index]);
+			free(new_environ);
+			return (NULL);
+		}
+		_strcpy(new_environ[index], environ[index]);
 	}
-	while (ep != NULL)
+	new_environ[index] = NULL;
+
+	return (new_environ);
+}
+
+/**
+ * free_env - Frees the the environment copy.
+ */
+void free_env(void)
+{
+	int index;
+
+	for (index = 0; environ[index]; index++)
+		free(environ[index]);
+	free(environ);
+}
+
+/**
+ * _getenv - Gets an environmental variable from the PATH.
+ * @var: The name of the environmental variable to get.
+ *
+ * Return: If the environmental variable does not exist - NULL.
+ *         Otherwise - a pointer to the environmental variable.
+ */
+char **_getenv(const char *var)
+{
+	int index, len;
+
+	len = _strlen(var);
+	for (index = 0; environ[index]; index++)
 	{
-		abs_path = _strdup(ep->str);
-		if (abs_path == NULL)
-			return (NULL);
-		abs_path = _strcat_realloc(abs_path, cmd);
-		if (abs_path == NULL)
-			return (NULL);
-		status = access(abs_path, F_OK | X_OK);
-		if (status == 0)
-			return (abs_path);
-		free(abs_path);
-		ep = ep->next;
+		if (_strncmp(var, environ[index], len) == 0)
+			return (&environ[index]);
 	}
+
 	return (NULL);
 }

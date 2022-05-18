@@ -1,125 +1,192 @@
 #include "shell.h"
-/**
-  * is_builtin - checks if cmd is a builtin
-  * @cmd: command to find
-  * Return: On success - pointer to function, On Failure - NULL pointer
- (* other useful shell builtins:
- (* pwd, echo, pushd, popd, type
- (* * requires ^Z
- (* fg, bg
- (*  * Requires ^R
- (* reverse-i-search **HISTORY**
-*/
-int (*is_builtin(char *cmd))()
-{
-	unsigned int i;
-	builtin_cmds_t builds[] = {
-		{"alias", _alias},
-		{"cd", _cd},
-		{"env", _env},
-		{"exit", _exit_with_grace},
-		{"history", _history},
-		{"setenv", _setenv_usr},
-		{"bowie", bowie},
-		{NULL, NULL}
-	};
+int (*get_builtin(char *command))(char **args, char **front);
+int shellby_exit(char **args, char **front);
+int shellby_cd(char **args, char __attribute__((__unused__)) **front);
+int shellby_help(char **args, char __attribute__((__unused__)) **front);
 
-	i = 0;
-	while (*builds[i].fun != NULL)
-	{
-		if (_strncmp(builds[i].cmd_str, cmd, _strlen(builds[i].cmd_str)) == 0)
-			return (builds[i].fun);
-		i++;
-	}
-	return (NULL);
-}
 /**
-  * _exit_with_grace - Frees any remaining malloc'd spaces, and exits
-  * @linkedlist_path: Linked list to free.
-  * @buffer: buffer to free
-  * @tokens: Check for other inputs
- (* * CHANGE TO VARIADIC LIST.
-  * Return: -1 if exit fails.
-  */
-int _exit_with_grace(char **tokens, env_t *linkedlist_path, char *buffer)
+ * get_builtin - Matches a command with a corresponding
+ *               shellby builtin function.
+ * @command: The command to match.
+ *
+ * Return: A function pointer to the corresponding builtin.
+ */
+int (*get_builtin(char *command))(char **args, char **front)
 {
-	unsigned char exit_status;
+	builtin_t funcs[] = {
+		{ "exit", shellby_exit },
+		{ "env", shellby_env },
+		{ "setenv", shellby_setenv },
+		{ "unsetenv", shellby_unsetenv },
+		{ "cd", shellby_cd },
+		{ "alias", shellby_alias },
+		{ "help", shellby_help },
+		{ NULL, NULL }
+	};
 	int i;
 
-	for (i = 0; tokens[1] && tokens[1][i]; i++)
+	for (i = 0; funcs[i].name; i++)
 	{
-		if (!_isdigit(tokens[1][i]))
-		{
-			simple_print("numeric argument required, exiting\n");
+		if (_strcmp(funcs[i].name, command) == 0)
 			break;
+	}
+	return (funcs[i].f);
+}
+
+/**
+ * shellby_exit - Causes normal process termination
+ *                for the shellby shell.
+ * @args: An array of arguments containing the exit value.
+ * @front: A double pointer to the beginning of args.
+ *
+ * Return: If there are no arguments - -3.
+ *         If the given exit value is invalid - 2.
+ *         O/w - exits with the given status value.
+ *
+ * Description: Upon returning -3, the program exits back in the main function.
+ */
+int shellby_exit(char **args, char **front)
+{
+	int i, len_of_int = 10;
+	unsigned int num = 0, max = 1 << (sizeof(int) * 8 - 1);
+
+	if (args[0])
+	{
+		if (args[0][0] == '+')
+		{
+			i = 1;
+			len_of_int++;
+		}
+		for (; args[0][i]; i++)
+		{
+			if (i <= len_of_int && args[0][i] >= '0' && args[0][i] <= '9')
+				num = (num * 10) + (args[0][i] - '0');
+			else
+				return (create_error(--args, 2));
 		}
 	}
-	exit_status = tokens[1] && i >= _strlen(tokens[1]) ? _atoi(tokens[1]) : 0;
-	if (linkedlist_path && buffer && tokens)
+	else
 	{
-		free_list(linkedlist_path);
-		linkedlist_path = NULL;
-		free(buffer);
-		buffer = NULL;
-		free(tokens);
-		tokens = NULL;
+		return (-3);
 	}
-	exit(exit_status);
-	return (-1);
+	if (num > max - 1)
+		return (create_error(--args, 2));
+	args -= 1;
+	free_args(args, front);
+	free_env();
+	free_alias_list(aliases);
+	exit(num);
 }
-/**
-  * _env - prints out the current environment
-  * @tokens: tokenized strings
-  * @environment: linked list environment
-  * Return: 0 on success, -1 on catastrophic failure
-  */
-int _env(char **tokens, env_t *environment)
-{
-	char **envir;
 
-	if (tokens[1])
-		simple_print("No arguments are necessary\n");
-	envir = environ;
-	if (!envir || !environ)
+/**
+ * shellby_cd - Changes the current directory of the shellby process.
+ * @args: An array of arguments.
+ * @front: A double pointer to the beginning of args.
+ *
+ * Return: If the given string is not a directory - 2.
+ *         If an error occurs - -1.
+ *         Otherwise - 0.
+ */
+int shellby_cd(char **args, char __attribute__((__unused__)) **front)
+{
+	char **dir_info, *new_line = "\n";
+	char *oldpwd = NULL, *pwd = NULL;
+	struct stat dir;
+
+	oldpwd = getcwd(oldpwd, 0);
+	if (!oldpwd)
 		return (-1);
-	for ( ; *envir; envir++)
+
+	if (args[0])
 	{
-		write(STDOUT_FILENO, *envir, _strlen(*envir));
-		write(STDOUT_FILENO, "\n", 1);
+		if (*(args[0]) == '-' || _strcmp(args[0], "--") == 0)
+		{
+			if ((args[0][1] == '-' && args[0][2] == '\0') ||
+					args[0][1] == '\0')
+			{
+				if (_getenv("OLDPWD") != NULL)
+					(chdir(*_getenv("OLDPWD") + 7));
+			}
+			else
+			{
+				free(oldpwd);
+				return (create_error(args, 2));
+			}
+		}
+		else
+		{
+			if (stat(args[0], &dir) == 0 && S_ISDIR(dir.st_mode)
+					&& ((dir.st_mode & S_IXUSR) != 0))
+				chdir(args[0]);
+			else
+			{
+				free(oldpwd);
+				return (create_error(args, 2));
+			}
+		}
 	}
-	environment++;
+	else
+	{
+		if (_getenv("HOME") != NULL)
+			chdir(*(_getenv("HOME")) + 5);
+	}
+
+	pwd = getcwd(pwd, 0);
+	if (!pwd)
+		return (-1);
+
+	dir_info = malloc(sizeof(char *) * 2);
+	if (!dir_info)
+		return (-1);
+
+	dir_info[0] = "OLDPWD";
+	dir_info[1] = oldpwd;
+	if (shellby_setenv(dir_info, dir_info) == -1)
+		return (-1);
+
+	dir_info[0] = "PWD";
+	dir_info[1] = pwd;
+	if (shellby_setenv(dir_info, dir_info) == -1)
+		return (-1);
+	if (args[0] && args[0][0] == '-' && args[0][1] != '-')
+	{
+		write(STDOUT_FILENO, pwd, _strlen(pwd));
+		write(STDOUT_FILENO, new_line, 1);
+	}
+	free(oldpwd);
+	free(pwd);
+	free(dir_info);
 	return (0);
 }
-/**
-  * _cd - changes working directory
-  * @tokens: argument list
-  * Return: 0 on success
-  */
-int _cd(char **tokens)
-{
-	char *target;
-	char pwd[BUFSIZE];
-	char *home;
 
-	home = _getenv("HOME");
-	if (tokens[1])
-	{
-		if (tokens[1][0] == '~' && !tokens[1][1])
-			target = home;
-		else if (tokens[1][0] == '-' && !tokens[1][1])
-			target = _getenv("OLDPWD");
-		else
-			target = tokens[1];
-	}
+/**
+ * shellby_help - Displays information about shellby builtin commands.
+ * @args: An array of arguments.
+ * @front: A pointer to the beginning of args.
+ *
+ * Return: If an error occurs - -1.
+ *         Otherwise - 0.
+ */
+int shellby_help(char **args, char __attribute__((__unused__)) **front)
+{
+	if (!args[0])
+		help_all();
+	else if (_strcmp(args[0], "alias") == 0)
+		help_alias();
+	else if (_strcmp(args[0], "cd") == 0)
+		help_cd();
+	else if (_strcmp(args[0], "exit") == 0)
+		help_exit();
+	else if (_strcmp(args[0], "env") == 0)
+		help_env();
+	else if (_strcmp(args[0], "setenv") == 0)
+		help_setenv();
+	else if (_strcmp(args[0], "unsetenv") == 0)
+		help_unsetenv();
+	else if (_strcmp(args[0], "help") == 0)
+		help_help();
 	else
-		target = home;
-	if (target == home)
-		chdir(target);
-	else if (access(target, F_OK | R_OK) == 0)
-		chdir(target);
-	else
-		simple_print("Could not find directory\n");
-	setenv("OLDPWD", _getenv("PWD"), 1);
-	setenv("PWD", getcwd(pwd, sizeof(pwd)), 1);
+		write(STDERR_FILENO, name, _strlen(name));
+
 	return (0);
 }

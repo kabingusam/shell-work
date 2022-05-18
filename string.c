@@ -1,100 +1,86 @@
 #include "shell.h"
+
+int _strlen(const char *s);
+char *_strcpy(char *dest, const char *src);
+char *_strcat(char *dest, const char *src);
+char *_strncat(char *dest, const char *src, size_t n);
+
 /**
- * _strlen - replicates strlen from the standard library
- * @s: string to be measured
- * Return: length of string
+ * _strlen - Returns the length of a string.
+ * @s: A pointer to the characters string.
+ *
+ * Return: The length of the character string.
  */
-int _strlen(char *s)
+int _strlen(const char *s)
 {
-	int i;
+	int length = 0;
 
-	for (i = 0; *s; s++, i++)
+	if (!s)
+		return (length);
+	for (length = 0; s[length]; length++)
 		;
-	return (i);
+	return (length);
 }
+
 /**
- * _strncmp - compares two strings and returns their difference
- * @s1: the first string
- * @s2: the second string
- * @bytes: number of bytes to compare
- * Return: number of bytes that differ
+ * _strcpy - Copies the string pointed to by src, including the
+ *           terminating null byte, to the buffer pointed by des.
+ * @dest: Pointer to the destination of copied string.
+ * @src: Pointer to the src of the source string.
+ *
+ * Return: Pointer to dest.
  */
-int _strncmp(char *s1, char *s2, size_t bytes)
+char *_strcpy(char *dest, const char *src)
 {
-	unsigned int i;
+	size_t i;
 
-	if (s1 == NULL || s2 == NULL)
-		return (-1);
-
-	for (i = 0; s1[i] && s2[i] && s2[i] == s1[i] && i < bytes - 1; i++)
-		;
-	return (s2[i] - s1[i]);
-}
-/**
-  * _strdup - duplicates a string
-  * @src: source to copy from
-  * Return: pointer to malloc'd space
-  **/
-char *_strdup(char *src)
-{
-	int len, i;
-	char *dest;
-
-	if (src == NULL)
-		return (NULL);
-	len = _strlen(src);
-	if (len < 0)
-		return (NULL);
-	len++;
-	dest = malloc((len) * sizeof(char));
-	if (dest == NULL)
-		return (NULL);
-	for (i = 0; i < len; i++)
+	for (i = 0; src[i] != '\0'; i++)
 		dest[i] = src[i];
-	dest[i - 1] = '\0';
+	dest[i] = '\0';
 	return (dest);
 }
-/**
-  * _strcat_realloc - concatenates 2 strings and reallocates automatically
-  * @dest: destination to copy to
-  * @src: source to copy from
-  * Return: pointer to concatenated strings
-  **/
-char *_strcat_realloc(char *dest, char *src)
-{
-	unsigned int dest_len, src_len, i;
 
-	dest_len = _strlen(dest);
-	src_len = _strlen(src);
-	dest = _realloc(dest, dest_len, dest_len + src_len + 1);
-	if (dest == NULL)
-		return (NULL);
-	for (i = 0; i < src_len; i++)
-	{
-		dest[i + dest_len] = src[i];
-	}
-	dest[i + dest_len] = '\0';
-	return (dest);
-}
 /**
- * _atoi - converts a string to an integer
- * @s: the input string
- * Return: the converted int
+ * _strcat - Concantenates two strings.
+ * @dest: Pointer to destination string.
+ * @src: Pointer to source string.
+ *
+ * Return: Pointer to destination string.
  */
-int _atoi(char *s)
+char *_strcat(char *dest, const char *src)
 {
-	int n, sign, result;
+	char *destTemp;
+	const char *srcTemp;
 
-	for (n = result = 0, sign = 1; s[n]; n++)
-	{
-		if (s[n] == '-')
-			sign *= -1;
-		if (s[n] >= '0' && s[n] <= '9')
-			result = 10 * result - (s[n] - '0');
-		if (result < 0 && (s[n] < '0' || s[n] > '9'))
-			break;
-	}
-	if (sign > 0)
-		result *= -1;
-	return (result);
+	destTemp = dest;
+	srcTemp =  src;
+
+	while (*destTemp != '\0')
+		destTemp++;
+
+	while (*srcTemp != '\0')
+		*destTemp++ = *srcTemp++;
+	*destTemp = '\0';
+	return (dest);
+}
+
+/**
+ * _strncat - Concantenates two strings where n number
+ *            of bytes are copied from source.
+ * @dest: Pointer to destination string.
+ * @src: Pointer to source string.
+ * @n: n bytes to copy from src.
+ *
+ * Return: Pointer to destination string.
+ */
+char *_strncat(char *dest, const char *src, size_t n)
+{
+	size_t dest_len = _strlen(dest);
+	size_t i;
+
+	for (i = 0; i < n && src[i] != '\0'; i++)
+		dest[dest_len + i] = src[i];
+	dest[dest_len + i] = '\0';
+
+	return (dest);
 }

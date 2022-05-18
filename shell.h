@@ -1,98 +1,141 @@
-#ifndef SHELL_H
-#define SHELL_H
+#ifndef _SHELL_H_
+#define _SHELL_H_
 
+/*
+ * File: shell.h
+ * Auth: Alex Yu
+ *       Brennan D Baraban
+ */
+
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include <stdio.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-/* delete when functions are built */
-#include <string.h>
-/* end delete when functions are built */
 
-#define BUFSIZE 1024
+#define END_OF_FILE -2
+#define EXIT -3
+
+/* Global environemnt */
 extern char **environ;
-/**
-  * struct environ_type - linked list from PATH
-  * @str: path in the format /usr/bin
-  * @len: length of the string
-  * @next: points to the next node
-  */
-typedef struct environ_type
-{
-	char *str;
-	unsigned int len;
-	struct environ_type *next;
-} env_t;
+/* Global program name */
+char *name;
+/* Global history counter */
+int hist;
 
 /**
-  * struct builtin_commands - stuct for function pointers to builtin commands
-  * @cmd_str: commands (env, cd, alias, history)
-  * @fun: function
-  */
-typedef struct builtin_commands
+ * struct list_s - A new struct type defining a linked list.
+ * @dir: A directory path.
+ * @next: A pointer to another struct list_s.
+ */
+typedef struct list_s
 {
-	char *cmd_str;
-	int (*fun)();
-} builtin_cmds_t;
+	char *dir;
+	struct list_s *next;
+} list_t;
 
-/* In builtins.c */
-int (*is_builtin(char *cmd))();
-int _exit_with_grace(char **tokens, env_t *linkedlist_path, char *buffer);
-int _env(char **tokens, env_t *environment);
-int _cd(char **tokens);
+/**
+ * struct builtin_s - A new struct type defining builtin commands.
+ * @name: The name of the builtin command.
+ * @f: A function pointer to the builtin command's function.
+ */
+typedef struct builtin_s
+{
+	char *name;
+	int (*f)(char **argv, char **front);
+} builtin_t;
 
-/* In builtins_2.c */
-int _setenv_usr(char **tokens);
-int _alias(void);
-int _history(void);
-int bowie(void);
+/**
+ * struct alias_s - A new struct defining aliases.
+ * @name: The name of the alias.
+ * @value: The value of the alias.
+ * @next: A pointer to another struct alias_s.
+ */
+typedef struct alias_s
+{
+	char *name;
+	char *value;
+	struct alias_s *next;
+} alias_t;
 
-/* in environment.c */
-env_t *list_from_path(void);
-env_t *environ_linked_list(void);
-char *search_os(char *cmd, env_t *linkedlist_path);
+/* Global aliases linked list */
+alias_t *aliases;
 
-/* in env_operations.c */
-char *_getenv(const char *name);
-int _setenv(const char *name, const char *value, int overwrite);
+/* Main Helpers */
+ssize_t _getline(char **lineptr, size_t *n, FILE *stream);
+void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
+char **_strtok(char *line, char *delim);
+char *get_location(char *command);
+list_t *get_path_dir(char *path);
+int execute(char **args, char **front);
+void free_list(list_t *head);
+char *_itoa(int num);
 
-/* in linked_list_operations.c */
-env_t *add_node(env_t **head, char *str, unsigned int len);
-void free_list(env_t *head);
+/* Input Helpers */
+void handle_line(char **line, ssize_t read);
+void variable_replacement(char **args, int *exe_ret);
+char *get_args(char *line, int *exe_ret);
+int call_args(char **args, char **front, int *exe_ret);
+int run_args(char **args, char **front, int *exe_ret);
+int handle_args(int *exe_ret);
+int check_args(char **args);
+void free_args(char **args, char **front);
+char **replace_aliases(char **args);
 
+/* String functions */
+int _strlen(const char *s);
+char *_strcat(char *dest, const char *src);
+char *_strncat(char *dest, const char *src, size_t n);
+char *_strcpy(char *dest, const char *src);
+char *_strchr(char *s, char c);
+int _strspn(char *s, char *accept);
+int _strcmp(char *s1, char *s2);
+int _strncmp(const char *s1, const char *s2, size_t n);
 
-/* In executor.c */
-void executor(char *argv[], env_t *linkedlist_path);
+/* Builtins */
+int (*get_builtin(char *command))(char **args, char **front);
+int shellby_exit(char **args, char **front);
+int shellby_env(char **args, char __attribute__((__unused__)) **front);
+int shellby_setenv(char **args, char __attribute__((__unused__)) **front);
+int shellby_unsetenv(char **args, char __attribute__((__unused__)) **front);
+int shellby_cd(char **args, char __attribute__((__unused__)) **front);
+int shellby_alias(char **args, char __attribute__((__unused__)) **front);
+int shellby_help(char **args, char __attribute__((__unused__)) **front);
 
-/* In memory_management.c */
-void *_realloc(char *ptr, unsigned int old_size, unsigned int new_size);
-void _memset(char *str, int fill, int n);
-void _memcpy(char *dest, char *src, unsigned int bytes);
+/* Builtin Helpers */
+char **_copyenv(void);
+void free_env(void);
+char **_getenv(const char *var);
 
-/* In parser.c */
-char *_getline(int file);
-char **parser(char *str, char *delim);
-void reader(void);
+/* Error Handling */
+int create_error(char **args, int err);
+char *error_env(char **args);
+char *error_1(char **args);
+char *error_2_exit(char **args);
+char *error_2_cd(char **args);
+char *error_2_syntax(char **args);
+char *error_126(char **args);
+char *error_127(char **args);
 
-/* In strtok.c */
-/* Other functions in this file do not need to be referenced elsewhere. */
-char *_strtok_r(char *str, char *delim, char **saveptr);
+/* Linkedlist Helpers */
+alias_t *add_alias_end(alias_t **head, char *name, char *value);
+void free_alias_list(alias_t *head);
+list_t *add_node_end(list_t **head, char *dir);
+void free_list(list_t *head);
 
-/* In string_operations.c */
-int _strlen(char *s);
-int _strncmp(char *s1, char *s2, size_t bytes);
-char *_strdup(char *src);
-char *_strcat_realloc(char *dest, char *src);
-int _atoi(char *s);
-int _isdigit(int c);
+void help_all(void);
+void help_alias(void);
+void help_cd(void);
+void help_exit(void);
+void help_help(void);
+void help_env(void);
+void help_setenv(void);
+void help_unsetenv(void);
+void help_history(void);
 
-/* In string_operations_2.c */
-unsigned int word_count(char *str);
-void simple_print(const char *str);
-int _strlen_const(const char *s);
-size_t print_list(const env_t *h);
-
-#endif
+int proc_file_commands(char *file_path, int *exe_ret);
+#endif /* _SHELL_H_ */

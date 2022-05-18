@@ -1,59 +1,105 @@
 #include "shell.h"
-/**
- * word_count - counts words given a char delimiter
- * @str: string of words
- * Return: word count as unsigned int
- */
-unsigned int word_count(char *str)
-{
-	unsigned int i, wc, flag;
-	char *delims = "\n \t";
 
-	for (i = 0, wc = 1, flag = 0; str[i]; i++)
+char *_strchr(char *s, char c);
+int _strspn(char *s, char *accept);
+int _strcmp(char *s1, char *s2);
+int _strncmp(const char *s1, const char *s2, size_t n);
+
+/**
+ * _strchr - Locates a character in a string.
+ * @s: The string to be searched.
+ * @c: The character to be located.
+ *
+ * Return: If c is found - a pointer to the first occurence.
+ *         If c is not found - NULL.
+ */
+char *_strchr(char *s, char c)
+{
+	int index;
+
+	for (index = 0; s[index]; index++)
 	{
-		if (flag == 0 &&
-			  (str[i] == delims[0]
-			|| str[i] == delims[1]
-			|| str[i] == delims[2])
-			&& str[i + 1] != delims[0]
-			&& str[i + 1] != delims[1]
-			&& str[i + 1] != delims[2])
-			flag = 1, wc++;
-		else
-			flag = 0;
+		if (s[index] == c)
+			return (s + index);
 	}
-	return (wc);
-}
-/**
- * _strlen_const - strlen for const strings
- * @s: string to be measured
- * Return: length of string
- */
-int _strlen_const(const char *s)
-{
-	int i;
 
-	for (i = 0; s[i] != '\0'; i++)
-		;
-	return (i);
+	return (NULL);
 }
-/**
- * simple_print - allows us to print simple lines
- * @str: const string to print
- */
-void simple_print(const char *str)
-{
-	int len;
 
-	len = _strlen_const(str);
-	write(STDOUT_FILENO, str, len);
-}
 /**
- * _isdigit - checks if chars are digits
- * @c: char to check
- * Return: 1 if yes, 0 if no
+ * _strspn - Gets the length of a prefix substring.
+ * @s: The string to be searched.
+ * @accept: The prefix to be measured.
+ *
+ * Return: The number of bytes in s which
+ *         consist only of bytes from accept.
  */
-int _isdigit(int c)
+int _strspn(char *s, char *accept)
 {
-	return ((c >= '0' && c <= '9') ? 1 : 0);
+	int bytes = 0;
+	int index;
+
+	while (*s)
+	{
+		for (index = 0; accept[index]; index++)
+		{
+			if (*s == accept[index])
+			{
+				bytes++;
+				break;
+			}
+		}
+		s++;
+	}
+	return (bytes);
+}
+
+/**
+ * _strcmp - Compares two strings.
+ * @s1: The first string to be compared.
+ * @s2: The second string to be compared.
+ *
+ * Return: Positive byte difference if s1 > s2
+ *         0 if s1 = s2
+ *         Negative byte difference if s1 < s2
+ */
+int _strcmp(char *s1, char *s2)
+{
+	while (*s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
+
+	if (*s1 != *s2)
+		return (*s1 - *s2);
+
+	return (0);
+}
+
+/**
+ * _strncmp - Compare two strings.
+ * @s1: Pointer to a string.
+ * @s2: Pointer to a string.
+ * @n: The first n bytes of the strings to compare.
+ *
+ * Return: Less than 0 if s1 is shorter than s2.
+ *         0 if s1 and s2 match.
+ *         Greater than 0 if s1 is longer than s2.
+ */
+int _strncmp(const char *s1, const char *s2, size_t n)
+{
+	size_t i;
+
+	for (i = 0; s1[i] && s2[i] && i < n; i++)
+	{
+		if (s1[i] > s2[i])
+			return (s1[i] - s2[i]);
+		else if (s1[i] < s2[i])
+			return (s1[i] - s2[i]);
+	}
+	if (i == n)
+		return (0);
+	else
+		return (-15);
 }

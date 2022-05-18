@@ -81,4 +81,3 @@ int bowie(void)
 	return (1947);
 /**	return (total); */
 }
-© 2022 GitHub, Inc.

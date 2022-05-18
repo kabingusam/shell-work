@@ -48,39 +48,82 @@ Files contained and description:
 
     Entry point of the program.
 
-2. Memo.c
+2. a_builtins.c
 
-    Handles memeory.
+    Handles builtins in the shell.
 
-3. More_string.c
+3. builtin_ex.c
 
-    Contains functions that handle Strings.
+    Handles builtins in the shell
 
-4. More_tools.c
+4. builtin_ex2.c
 
-    Contains functions that help in better handling of characters and integers plus errors.
+    Handles builtins in the shell
 
-5. Parser.c
+5. builtin.c
 
-    Parses the command by the user.
+    Handles builtins in the shell
 
-6. Shell.h
+6. env_op.c
 
-    Contains all the macros and prototypes.
+    Handles environment variables in shell
 
-7. String.c
+7. env.c
 
-    Contains functions that handle Strings.
+    Handles environment variables in shell
 
-8. Task0.c
+8. err_msg.c
 
-    Contains code that aims at passing all Betty tests.
+    Handles errors in shell
 
-9. Tools.c
+9. err_msg2.c
 
-    Contains functions that help in better handling of characters and integers plus errors.
+    Handles errors in shell
 
-10. man_3_simple_shell
+10. err.c
+
+    Handles errors in shell
+
+11. help.c
+
+    Handles variables in shell
+
+12. help2.c
+
+    Handles variables in shell
+
+13. input_helper.c
+
+    Handles inputs to the shell
+
+14. linked_listop.c
+
+    Handles linked lists in shell
+
+15. location.c
+
+    Handles paths in shell
+
+16. string.c 
+
+    Handles strings in shell
+
+17. perm.c
+
+    Handles file access permissions in shell
+
+18. split.c 
+
+    Deals with spliting of a command(delimiter).
+
+19. string.c 
+
+    Handles strings in shell
+
+20. task0.c
+
+
+21. man_3_simple_shell
 
 
 *kabingu sammy* - [Github](https://github.com/kabingusam) || [Twitter](https://twitter.com/Kabingusammy)
